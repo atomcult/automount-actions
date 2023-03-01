@@ -1,5 +1,5 @@
 name: automount-actions
-base: core20
+base: core22
 version: '0.2'
 summary: Automatically mount USB and take actions
 description: |
@@ -19,8 +19,6 @@ apps:
     plugs:
       - hardware-observe
       - mount-observe
-    environment:
-      LD_LIBRARY_PATH: $SNAP/usr/lib
 
   udiskctl:
     command: bin/udiskctl.sh
@@ -28,15 +26,11 @@ apps:
       - block-devices
       - hardware-observe
       - mount-observe
-    environment:
-      LD_LIBRARY_PATH: $SNAP/usr/lib
 
   auto-mount:
     command: bin/auto-mount
     daemon: simple
     after: [ udisksd ]
-    environment:
-      LD_LIBRARY_PATH: $SNAP/usr/lib
 
   auto-install:
     command: bin/auto-install
@@ -46,8 +40,6 @@ apps:
     install-mode: disable
     plugs:
       - snapd-control
-    environment:
-      LD_LIBRARY_PATH: $SNAP/usr/lib
 
 slots:
   service:
@@ -93,7 +85,7 @@ parts:
 
   udisks:
     source: https://github.com/storaged-project/udisks.git
-    source-tag: udisks-2.8.4
+    source-tag: udisks-2.9.4
     plugin: autotools
     autotools-configure-parameters:
       - --prefix=/usr

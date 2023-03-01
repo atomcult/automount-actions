@@ -1,8 +1,8 @@
 diff --git a/src/udisksdaemon.c b/src/udisksdaemon.c
-index 9ca899e0..27b6ba17 100644
+index 51e2bb5c..f5d594a0 100644
 --- a/src/udisksdaemon.c
 +++ b/src/udisksdaemon.c
-@@ -264,12 +264,17 @@ udisks_daemon_constructed (GObject *object)
+@@ -397,12 +397,17 @@ udisks_daemon_constructed (GObject *object)
          }
      }
  
@@ -26,58 +26,16 @@ index 9ca899e0..27b6ba17 100644
  
  
 diff --git a/src/udisksstate.c b/src/udisksstate.c
-index 4d6e95a9..8c23286c 100644
+index 0dff3230..438e83fd 100644
 --- a/src/udisksstate.c
 +++ b/src/udisksstate.c
-@@ -2236,14 +2236,20 @@ udisks_state_get (UDisksState           *state,
-    * - could also mmap the file
-    */
- 
--#ifdef HAVE_FHS_MEDIA
--  /* /media usually isn't on a tmpfs, so we need to make this persistant */
--  if (strcmp (key, "mounted-fs") == 0)
--    path = g_strdup_printf (PACKAGE_LOCALSTATE_DIR "/lib/udisks2/%s", key);
+@@ -2374,6 +2374,9 @@ udisks_state_get_modules (UDisksState *state)
+ static gchar *
+ get_state_file_path (const gchar *key)
+ {
 +  if (g_getenv ("SNAP_DATA") != NULL)
-+  {
-+    path = g_strdup_printf ("%s/%s", g_getenv ("SNAP_DATA"), key);
-+  }
-   else
-+  {
-+#ifdef HAVE_FHS_MEDIA
-+    /* /media usually isn't on a tmpfs, so we need to make this persistant */
-+    if (strcmp (key, "mounted-fs") == 0)
-+      path = g_strdup_printf (PACKAGE_LOCALSTATE_DIR "/lib/udisks2/%s", key);
-+    else
- #endif
--    path = g_strdup_printf ("/run/udisks2/%s", key);
--
-+      path = g_strdup_printf ("/run/udisks2/%s", key);
-+  }
- 
-   /* see if it's already in the cache */
-   ret = g_hash_table_lookup (state->cache, path);
-@@ -2309,13 +2315,20 @@ udisks_state_set (UDisksState          *state,
-   data = g_malloc (size);
-   g_variant_store (normalized, data);
- 
-+  if (g_getenv ("SNAP_DATA") != NULL)
-+  {
-+    path = g_strdup_printf ("%s/%s", g_getenv ("SNAP_DATA"), key);
-+  }
-+  else
-+  {
- #ifdef HAVE_FHS_MEDIA
-   /* /media usually isn't on a tmpfs, so we need to make this persistant */
--  if (strcmp (key, "mounted-fs") == 0)
--    path = g_strdup_printf (PACKAGE_LOCALSTATE_DIR "/lib/udisks2/%s", key);
--  else
-+    if (strcmp (key, "mounted-fs") == 0)
-+      path = g_strdup_printf (PACKAGE_LOCALSTATE_DIR "/lib/udisks2/%s", key);
-+    else
- #endif
--    path = g_strdup_printf ("/run/udisks2/%s", key);
-+      path = g_strdup_printf ("/run/udisks2/%s", key);
-+  }
- 
-   g_hash_table_insert (state->cache, g_strdup (path), g_variant_ref (value));
++    return g_strdup_printf ("%s/%s", g_getenv ("SNAP_DATA"), key);
++
+   if (g_str_equal (key, UDISKS_STATE_FILE_MOUNTED_FS_PERSISTENT))
+     return g_strdup_printf (PACKAGE_LOCALSTATE_DIR "/lib/udisks2/%s", key);
  
